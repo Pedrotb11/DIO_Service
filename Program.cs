@@ -5,6 +5,7 @@ namespace DIO.Series
     class Program
     {
         static SerieRepositorio repositorio = new SerieRepositorio();
+        static FilmeRepositorio repositoriofilme = new FilmeRepositorio();
         static void Main(string[] args)
         {
             string opcaoUsuario = ObterOpcaoUsuario();
@@ -28,6 +29,21 @@ namespace DIO.Series
                     case "5":
                         VisualizarSerie();
                         break;
+                    case "6":
+                        ListarFilme();
+                        break;
+                    case "7":
+                        InserirFilme();
+                        break;
+                    case "8":
+                        AtualizarFilme();
+                        break;
+                    case "9":
+                        ExcluirFilme();
+                        break;
+                    case "10":
+                        VisualizarFilme();
+                        break;
                     case "C":
                         Console.Clear();
                         break;
@@ -45,10 +61,34 @@ namespace DIO.Series
 
         private static void ExcluirSerie()
         {
-            Console.Write("Digite o ID da série: ");
-            int indiceSerie = int.Parse(Console.ReadLine());
+            Console.WriteLine("Tem certeza que deseja excluir serie?");
+            Console.WriteLine("sim ou não");
+            string ctz = Console.ReadLine();
+            
+            switch (ctz)
+            { 
+                case ("sim"):
+                    Console.Write("Digite o ID da série: ");
+                    int indiceSerie = int.Parse(Console.ReadLine());
 
-            repositorio.Exclui(indiceSerie);
+                    repositorio.Exclui(indiceSerie); 
+
+                    Console.WriteLine();
+                    Console.WriteLine("Exclusão bem sucedida!");
+                    break;
+
+                case ("não"):
+                    Console.WriteLine();
+                    Console.WriteLine("OK!");
+                    break;
+
+                default:
+                    Console.WriteLine();
+                    Console.WriteLine("Essa opção é invalida. tente sim ou não, tudo em minusculo.");
+                    break;
+
+            }
+            
         }
 
         private static void VisualizarSerie()
@@ -132,18 +172,134 @@ namespace DIO.Series
             repositorio.Insere(novaSerie);
         }
 
+        private static void ExcluirFilme()
+        {
+            Console.WriteLine("Tem certeza que deseja excluir Filme?");
+            Console.WriteLine("sim ou não");
+            string ctz = Console.ReadLine();
+            
+            switch (ctz)
+            { 
+                case ("sim"):
+                    Console.Write("Digite o ID do filme: ");
+                    int indiceFilme = int.Parse(Console.ReadLine());
+
+                    repositoriofilme.Exclui(indiceFilme); 
+
+                    Console.WriteLine();
+                    Console.WriteLine("Exclusão bem sucedida!");
+                    break;
+
+                case ("não"):
+                    Console.WriteLine();
+                    Console.WriteLine("OK!");
+                    break;
+
+                default:
+                    Console.WriteLine();
+                    Console.WriteLine("Essa opção é invalida. tente sim ou não, tudo em minusculo.");
+                    break;
+
+            }
+            
+        }
+
+        private static void VisualizarFilme()
+        {
+            Console.Write("Digite o ID do filme: ");
+            int indiceFilme = int.Parse(Console.ReadLine());
+
+            var filme = repositoriofilme.RetornaPorId(indiceFilme);
+
+            Console.WriteLine(filme);
+        }
+
+        private static void AtualizarFilme()
+        {
+            Console.WriteLine("Digite o ID do filme: ");
+            int indiceFilme = int.Parse(Console.ReadLine());
+
+            foreach (int i in Enum.GetValues(typeof(Genero)))
+            {
+                Console.WriteLine("{0}-{1}", i, Enum.GetName(typeof(Genero), i));
+            }
+            Console.WriteLine("Digite o gênero entre as opções a cima: ");
+            int entradaGenero = int.Parse(Console.ReadLine());
+            Console.WriteLine("Digite o Título do filme: ");
+            string entradaTitulo = Console.ReadLine();
+            Console.WriteLine("Digite o ano de estréia do filme: ");
+            int entradaAno = int.Parse(Console.ReadLine());
+            Console.WriteLine("Digite a descrição do filme: ");
+            string entradaDescricao = Console.ReadLine();
+            
+            Filme atualizaFilme = new Filme(id: indiceFilme,
+                                        genero: (Genero)entradaGenero,
+                                        titulo: entradaTitulo,
+                                        ano: entradaAno,
+                                        descricao: entradaDescricao);
+            repositoriofilme.Atualiza(indiceFilme, atualizaFilme);
+
+        }
+
+        private static void ListarFilme()
+        {
+            Console.WriteLine("Listar filmes");
+
+            var lista = repositoriofilme.Lista();
+
+            if (lista.Count == 0)
+            {
+                Console.WriteLine("Nenhum filme cadastrado.");
+                return;
+            }
+
+            foreach (var filme in lista)
+            {
+                var excluido = filme.retornaExcluido();
+                    Console.WriteLine("#ID {0}: - {1} {2}", filme.retornaId(), filme.retornaTitulo(), (excluido ? "*Excluido*" : "")); 
+            } //Quando trabalhar com banco de dados não se deve reaproveitar um ID que já foi usado, não é uma boa prática
+        }
+
+        private static void InserirFilme()
+        {
+            Console.WriteLine("Inserir novo filme");
+
+            foreach (int i in Enum.GetValues(typeof(Genero)))
+            {
+                Console.WriteLine("{0}-{1}", i, Enum.GetName(typeof(Genero), i));
+            }
+            Console.WriteLine("Digite o gênero entre as opções a cima: ");
+            int entradaGenero = int.Parse(Console.ReadLine());
+            Console.WriteLine("Digite o Título do filme: ");
+            string entradaTitulo = Console.ReadLine();
+            Console.WriteLine("Digite o ano de estréia do filme: ");
+            int entradaAno = int.Parse(Console.ReadLine());
+            Console.WriteLine("Digite a descrição do filme: ");
+            string entradaDescricao = Console.ReadLine();
+
+            Filme novaFilme = new Filme(id: repositorio.ProximoId(), 
+                                        genero: (Genero)entradaGenero,
+                                        titulo: entradaTitulo,
+                                        ano: entradaAno,
+                                        descricao: entradaDescricao);
+            repositoriofilme.Insere(novaFilme);
+        }
+
         private static string ObterOpcaoUsuario()
         {
             Console.WriteLine();
-            Console.WriteLine("DIO Series a seu dispor!!!");
+            Console.WriteLine("DIO Filmes e Series a seu dispor!!!");
             Console.WriteLine("Informe a opção desejada:");
             Console.WriteLine();
 
-            Console.WriteLine("1- Listar séries");
-            Console.WriteLine("2- Inserir nova série");
-            Console.WriteLine("3- Atualizar Série");
-            Console.WriteLine("4- Excluir série");
-            Console.WriteLine("5- Visualizar série");
+            Console.WriteLine("1- Listar séries          6- Listar filmes");
+            Console.WriteLine("2- Inserir nova série     7- Inserir novo filme");
+            Console.WriteLine("3- Atualizar Série        8- Atualizar filme");
+            Console.WriteLine("4- Excluir série          9- Excluir filme");
+            Console.WriteLine("5- Visualizar série       10- Visualizar filme");
+            Console.WriteLine("//////////////////////////////////////////////");
+            Console.WriteLine();
+
             Console.WriteLine("C- Limpar tela");
             Console.WriteLine("X- Sair");
             Console.WriteLine();
